@@ -1,7 +1,5 @@
 #include "CampusCompass.h"
-
 #include <string>
-
 using namespace std;
 
 CampusCompass::CampusCompass() {

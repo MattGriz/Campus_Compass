@@ -1,7 +1,5 @@
 #include <iostream>
-
 #include "CampusCompass.h"
-
 using namespace std;
 
 int main() {

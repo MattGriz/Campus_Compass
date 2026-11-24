@@ -1,10 +1,20 @@
 #pragma once
-#include <string>
+#include "Graph.h"
+#include <set>
 
-using namespace std;
+struct Student {
+    string name;
+    string UFID;
+    int residenceID;
+    set<string> classes;
+};
 
 class CampusCompass {
 private:
+    Graph graph; //graph of the school
+    unordered_map<string, int> classLocations; //map of class names to location_ID
+    //unordered_map<string, Student> students;
+
     // Think about what member variables you need to initialize
     // perhaps some graph representation?
 public:
