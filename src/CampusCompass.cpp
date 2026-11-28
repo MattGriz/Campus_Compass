@@ -1,6 +1,6 @@
 #include "CampusCompass.h"
-#include <string>
 #include <regex>
+#include <iostream>
 using namespace std;
 
 CampusCompass::CampusCompass() {} //constructor
@@ -127,7 +127,37 @@ bool CampusCompass::ParseCommand(const string &command) {
         stud.classes = courses;
         students[UFID] = stud;
 
-    } else if (commandType == "removeClass") { //===============================================================================//
+    } else if (commandType == "removeClass") { 
+        string course, extra;
+        int counter = 0;
+        if(!(ss >> course)) return false;
+
+        //check for extra arguments
+        if (ss >> extra) return false;
+
+        //validate course
+        if (!regex_match(course, classPattern)) return false; 
+        
+        //check if course exists
+        if(classLocations.find(course) == classLocations.end()) return false;
+
+        for (auto stud = students.begin(); stud != students.end();) {
+            if (stud->second.classes.find(course) != stud->second.classes.end()) {
+                stud->second.classes.erase(course);
+                counter++;
+                if (stud->second.classes.size() == 0) {
+                    stud = students.erase(stud);
+                    continue;
+                }
+            }
+            stud++;
+        }
+
+        if (counter == 0) return false;
+
+        cout << counter << endl;
+        return true;
+
     } else if (commandType == "remove") {
         string UFID, extra;
         if (!(ss >> UFID)) return false;
@@ -144,8 +174,62 @@ bool CampusCompass::ParseCommand(const string &command) {
         return true;
 
     } else if (commandType == "dropClass") { 
-        
-    } else if (commandType == "replaceClass") { //===============================================================================//
+        string UFID, course, extra;
+        if(!(ss >> UFID >> course)) return false;
+
+        //validate UFID and course code
+        if (!regex_match(UFID, UFIDPattern)) return false;
+        if (!regex_match(course, classPattern)) return false;  
+
+        //check for extra arguments
+        if (ss >> extra) return false;
+
+        //check if student exists
+        if(students.find(UFID) == students.end()) return false;
+
+        //check if course exists
+        if(classLocations.find(course) == classLocations.end()) return false;
+
+        //check if student has the course
+        if (students[UFID].classes.find(course) == students[UFID].classes.end()) return false;
+
+        //remove course and check size
+        students[UFID].classes.erase(course);
+        if (students[UFID].classes.size() == 0) {
+            students.erase(UFID);
+        }
+
+        return true;
+
+    } else if (commandType == "replaceClass") { 
+        string UFID, course1, course2, extra;
+        if(!(ss >> UFID >> course1 >> course2)) return false;
+
+        //validate UFID and course codes
+        if (!regex_match(UFID, UFIDPattern)) return false;
+        if (!regex_match(course1, classPattern)) return false;  
+        if (!regex_match(course2, classPattern)) return false;  
+
+        //check for extra arguments
+        if (ss >> extra) return false;
+
+        //check if student exists
+        if(students.find(UFID) == students.end()) return false;
+
+        //check if student is not in course1 or is already in course2
+        if(students[UFID].classes.find(course1) == students[UFID].classes.end()) return false;
+        if(students[UFID].classes.find(course2) != students[UFID].classes.end()) return false;
+
+
+        //check if courses exists
+        if(classLocations.find(course2) == classLocations.end()) return false;
+
+        //replace course1 with course2
+        students[UFID].classes.erase(course1);
+        students[UFID].classes.insert(course2);
+
+        return true;
+
     } else if (commandType == "toggleEdgesClosure") { //===============================================================================//
     } else if (commandType == "checkEdgeStatus") { //===============================================================================//
     } else if (commandType == "isConnected") { //===============================================================================//
