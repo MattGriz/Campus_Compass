@@ -14,11 +14,13 @@ struct Edge {
     bool isOpen = true;
 };
 
+//graph strcuture
 class Graph {
     private:
         unordered_map<int, vector<Edge>> adjList;
 
     public:
-        Graph () {}
-        void buildGraph(const string& edgesFile);
+        Graph() = default;
+        void addEdge(int from, int to, int weight);
+        bool isConnected(int from, int to);
 };
