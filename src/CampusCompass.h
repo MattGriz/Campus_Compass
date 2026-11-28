@@ -13,8 +13,7 @@ class CampusCompass {
     private:
         Graph graph; //graph of the school, locations, and times
         unordered_map<string, vector<int>> classLocations; //map of vectors bu class name, <ID, start, end>
-        unordered_map<string, Student> students; // map of students for the extra credit
-
+        unordered_map<string, Student> students; // map of students 
         // Think about what member variables you need to initialize
         // perhaps some graph representation?
     public:

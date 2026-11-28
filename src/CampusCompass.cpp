@@ -1,10 +1,9 @@
 #include "CampusCompass.h"
 #include <string>
+#include <regex>
 using namespace std;
 
-CampusCompass::CampusCompass() {
-    // initialize your object
-}
+CampusCompass::CampusCompass() {} //constructor
 
 bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes_filepath) {
     // return boolean based on whether parsing was successful or not
@@ -58,7 +57,7 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
         getline(ss, locationID_str, ',');
         values.push_back(stoi(locationID_str));
 
-        //get the appropriate time, stoi and hour to minutes
+        //get the appropriate times, stoi and hour to minutes
         getline(ss, time_str, ':');
         time1 = stoi(time_str) * 60;
         getline(ss, time_str, ',');
@@ -70,21 +69,91 @@ bool CampusCompass::ParseCSV(const string &edges_filepath, const string &classes
         values.push_back(time1);
         values.push_back(time2);
 
+        //add the elements to the classLocations map 
         classLocations[class_str] = values;
     }
-
-
-
-
-
 
     return true;
 }
 
 bool CampusCompass::ParseCommand(const string &command) {
-    // do whatever regex you need to parse validity
-    // hint: return a boolean for validation when testing. For example:
-    bool is_valid = true; // replace with your actual validity checking
+    //get command type
+    stringstream ss(command);
+    string commandType;
+    ss >> commandType;
 
-    return is_valid;
+    //regex parsing rules
+    static const regex namePattern("[a-zA-Z ]+");
+    static const regex UFIDPattern("[0-9]{8}");
+    static const regex classPattern("[A-Z]{3}[0-9]{4}");
+
+    //check commandType and handle all command logic
+    if (commandType == "insert") {
+        string name, UFID, residenceID, num, course;
+        set<string> courses;
+        
+        //extract name and remaining arguments
+        if (!getline(ss, name, '"')) return false;
+        if (!(ss >> UFID >> residenceID >> num)) return false;
+
+        //validate name and UFID
+        if (!regex_match(name, namePattern) || !regex_match(UFID, UFIDPattern)) return false;
+        //check uniquesness name and UFID
+        if (students.find(UFID) != students.end()) return false;
+        //check number of classes
+        if (stoi(num) < 1 || stoi(num) > 6) return false;
+        //validate class codes
+        for (int i = 0; i < stoi(num); i++) {
+            if (!(ss >> course)) return false;
+            if (!regex_match(course, classPattern)) return false;
+
+            //check if class exists
+            if (classLocations.find(course) == classLocations.end()) 
+                return false;
+            //check for duplicate classes
+            if (courses.find(course) != courses.end()) return false;
+
+            courses.insert(course);
+        }
+
+        //check for extra arguments
+        if (ss >> course) return false;
+
+        //make student object 
+        Student stud;
+        stud.name = name;
+        stud.UFID = UFID;
+        stud.residenceID = stoi(residenceID);
+        stud.classes = courses;
+        students[UFID] = stud;
+
+    } else if (commandType == "removeClass") { //===============================================================================//
+    } else if (commandType == "remove") {
+        string UFID, extra;
+        if (!(ss >> UFID)) return false;
+
+        //validate UFID
+        if (!regex_match(UFID, UFIDPattern)) return false;
+
+        //check for extra arguments
+        if (ss >> extra) return false;
+
+        //check to see if UFID is there then erase
+        if(students.find(UFID) == students.end()) return false;
+        students.erase(UFID);
+        return true;
+
+    } else if (commandType == "dropClass") { 
+        
+    } else if (commandType == "replaceClass") { //===============================================================================//
+    } else if (commandType == "toggleEdgesClosure") { //===============================================================================//
+    } else if (commandType == "checkEdgeStatus") { //===============================================================================//
+    } else if (commandType == "isConnected") { //===============================================================================//
+    } else if (commandType == "printShortestEdges") { //===============================================================================//
+    } else if (commandType == "printStudentZone") { //===============================================================================//
+    } else if (commandType == "verifySchedule") { //===============================================================================//
+    } else {
+        return false;
+    }
+    return true;
 }

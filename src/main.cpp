@@ -16,8 +16,11 @@ int main() {
     cin.ignore(); // ignore newline that first cin left over
     for (int i = 0; i < no_of_lines; i++) {
         getline(cin, command);
-
         // parse your commands however you see fit
-        compass.ParseCommand(command);
+        if (compass.ParseCommand(command)) { // add the cases where it doesnt print anything
+            cout << "successful" << endl;
+        } else {
+            cout << "unsuccessful" << endl;
+        }
     }
 }

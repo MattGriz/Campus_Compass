@@ -15,3 +15,5 @@ void Graph::addEdge(int from, int to, int weight) {
     reverseEdge.weight = weight;
     adjList[to].push_back(reverseEdge);
 }
+
+//void Graph::isConnected(bullshit) {}
